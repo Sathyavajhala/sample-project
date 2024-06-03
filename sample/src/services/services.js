@@ -1,5 +1,5 @@
 import axios from "axios";
-export const BaseURL = " https://pocsfdigital.azurewebsites.net/api/";
+export const BaseURL = "https://sfdigital.azurewebsites.net/api";
 
 const getHeaders = async (header) => {
   const headers = {

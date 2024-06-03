@@ -1,4 +1,5 @@
 export const networkURLs = {
   getAllCustomer: "/customer/get-all-customers",
-  postCustomer: "customer/create-customer",
+  updateCustomer: "/customer/update-customer-details",
+  postCustomer: "/customer/create-customer",
 };
