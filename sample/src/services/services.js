@@ -11,7 +11,7 @@ const getHeaders = async (header) => {
   //   }
   return headers;
 };
-
+console.log("first commit");
 const Get = async (url, isRequired) => {
   const headers = await getHeaders(isRequired);
   try {
