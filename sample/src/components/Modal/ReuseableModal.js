@@ -6,7 +6,7 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { Grid, OutlinedInput } from "@mui/material";
+import { CircularProgress, Grid, OutlinedInput } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import "./index.css";
@@ -36,6 +36,7 @@ const validationSchema = Yup.object({
 });
 
 export default function BasicModal({ open, handleCloseModal, data }) {
+  const [done, setDone] = React.useState(false);
   const formik = useFormik({
     initialValues: {
       name: data?.name ? data?.name : "",
@@ -53,6 +54,7 @@ export default function BasicModal({ open, handleCloseModal, data }) {
 
   const handleAdd = async (values) => {
     console.log(data, "adding");
+    setDone(true);
     const { name, customerId, customerType, noOfFunds, totalInvestment } =
       values;
     console.log(values, "values");
@@ -66,13 +68,17 @@ export default function BasicModal({ open, handleCloseModal, data }) {
     try {
       const response = await Post(networkURLs.postCustomer, payload, false);
       console.log(response, "response");
+      setDone(false);
       handleCloseModal();
     } catch (e) {
       console.log(e);
+      setDone(false);
+      handleCloseModal();
     }
   };
 
   const handleUpdate = async (values) => {
+    setDone(true);
     const { name, customerId, customerType, noOfFunds, totalInvestment } =
       values;
     const payload = {
@@ -86,6 +92,7 @@ export default function BasicModal({ open, handleCloseModal, data }) {
       const responsee = await Put(networkURLs.updateCustomer, payload, false);
       console.log(responsee);
       handleCloseModal();
+      setDone(false);
     } catch (e) {
       console.log(e);
     }
@@ -216,6 +223,7 @@ export default function BasicModal({ open, handleCloseModal, data }) {
                   variant="outlined"
                   type="button"
                   onClick={() => handleCloseModal()}
+                  disabled={done}
                 >
                   Close
                 </Button>
@@ -223,6 +231,11 @@ export default function BasicModal({ open, handleCloseModal, data }) {
                   variant="contained"
                   style={{ marginLeft: "5%", backgroundColor: "#005286" }}
                   type="submit"
+                  endIcon={
+                    done && (
+                      <CircularProgress style={{ color: "white" }} size={20} />
+                    )
+                  }
                 >
                   {data ? "Update" : "Add"}
                 </Button>
