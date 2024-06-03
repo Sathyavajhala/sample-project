@@ -6,11 +6,11 @@ import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { Grid } from "@mui/material";
+import { Grid, OutlinedInput } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import "./index.css";
-import { Post } from "../../services/services";
+import { Post, Put } from "../../services/services";
 import { networkURLs } from "../../services/networkUrls";
 
 const style = {
@@ -35,25 +35,57 @@ const validationSchema = Yup.object({
   noOfFunds: Yup.number().required("Number of Funds is required"),
 });
 
-export default function BasicModal({ open, setOpen, data }) {
+export default function BasicModal({ open, handleCloseModal, data }) {
   const formik = useFormik({
     initialValues: {
-      name: data.name,
-      customerId: data.customerId,
-      customerType: data.customerType,
-      totalInvestment: data.totalInvestment,
-      noOfFunds: data.noOfFunds,
+      name: data?.name ? data?.name : "",
+      customerId: data?.customerId ? data?.customerId : "",
+      customerType: data?.customerType ? data?.customerType : "",
+      totalInvestment: data?.totalInvestment ? data?.totalInvestment : "",
+      noOfFunds: data?.noOfFunds ? data?.noOfFunds : "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      handleUpdate(values);
+      if (data) handleUpdate(values);
+      else handleAdd(values);
     },
   });
 
-  const handleUpdate = async (values) => {
+  const handleAdd = async (values) => {
+    console.log(data, "adding");
+    const { name, customerId, customerType, noOfFunds, totalInvestment } =
+      values;
+    console.log(values, "values");
+    const payload = {
+      salesforce_customer_id: 648,
+      customer_name: name,
+      customer_type: customerType,
+      total_investment: totalInvestment,
+      no_of_funds: noOfFunds,
+    };
     try {
-      const responsee = await Post(networkURLs.postCustomer, values, false);
+      const response = await Post(networkURLs.postCustomer, payload, false);
+      console.log(response, "response");
+      handleCloseModal();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleUpdate = async (values) => {
+    const { name, customerId, customerType, noOfFunds, totalInvestment } =
+      values;
+    const payload = {
+      salesforce_customer_id: customerId,
+      customer_name: name,
+      customer_type: customerType,
+      total_investment: totalInvestment,
+      no_of_funds: noOfFunds,
+    };
+    try {
+      const responsee = await Put(networkURLs.updateCustomer, payload, false);
       console.log(responsee);
+      handleCloseModal();
     } catch (e) {
       console.log(e);
     }
@@ -63,7 +95,7 @@ export default function BasicModal({ open, setOpen, data }) {
     <div>
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => handleCloseModal()}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
@@ -74,9 +106,9 @@ export default function BasicModal({ open, setOpen, data }) {
             component="h2"
             style={{ paddingBottom: "5%" }}
           >
-            Edit Customer Information
+            {data ? "Update" : "Add"} Customer Information
           </Typography>
-          <form onSubmit={formik.handleUpdate}>
+          <form onSubmit={formik.handleSubmit}>
             <Box
               style={{
                 gap: 20,
@@ -123,8 +155,9 @@ export default function BasicModal({ open, setOpen, data }) {
                   id="customer-type"
                   value={formik.values.customerType}
                   onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  label="Customer"
+                  // onBlur={formik.handleBlur}
+                  // label="Age"
+                  input={<OutlinedInput label="Name" />}
                   name="customerType"
                   style={{ width: "100%" }}
                   error={
@@ -135,8 +168,8 @@ export default function BasicModal({ open, setOpen, data }) {
                     formik.touched.customerType && formik.errors.customerType
                   }
                 >
-                  <MenuItem value={"Individual"}>Individual</MenuItem>
-                  <MenuItem value={"Business"}>Business</MenuItem>
+                  <MenuItem value={"INDIVIDUAL"}>INDIVIDUAL</MenuItem>
+                  <MenuItem value={"CORPORATE"}>CORPORATE</MenuItem>
                 </Select>
               </Grid>
               <TextField
@@ -182,7 +215,7 @@ export default function BasicModal({ open, setOpen, data }) {
                 <Button
                   variant="outlined"
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={() => handleCloseModal()}
                 >
                   Close
                 </Button>
@@ -191,7 +224,7 @@ export default function BasicModal({ open, setOpen, data }) {
                   style={{ marginLeft: "5%", backgroundColor: "#005286" }}
                   type="submit"
                 >
-                  Update
+                  {data ? "Update" : "Add"}
                 </Button>
               </Grid>
             </Box>

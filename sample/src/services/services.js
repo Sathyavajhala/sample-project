@@ -1,5 +1,5 @@
 import axios from "axios";
-export const BaseURL = " https://pocsfdigital.azurewebsites.net/api/";
+export const BaseURL = "https://sfdigital.azurewebsites.net/api";
 
 const getHeaders = async (header) => {
   const headers = {
@@ -11,7 +11,7 @@ const getHeaders = async (header) => {
   //   }
   return headers;
 };
-
+console.log("first commit");
 const Get = async (url, isRequired) => {
   const headers = await getHeaders(isRequired);
   try {
